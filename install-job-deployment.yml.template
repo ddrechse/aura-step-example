@@ -1,0 +1,52 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: install-aura
+  namespace: ${NAMESPACE} 
+spec:
+  activeDeadlineSeconds: 120
+  backoffLimit: 10  
+  template:
+    spec:
+      serviceAccountName: ${SERVICE_ACCOUNT_NAME}
+      initContainers:
+      - name: helm-install
+        image: ${DOCKER_SERVER}/${DOCKER_REPO}/helm-base:${AURA_INSTALLER_TAG}
+        command: ["helm",  "init", "--service-account=helm"]
+        imagePullPolicy: Always
+      - name: helm-ready
+        image: ${DOCKER_SERVER}/${DOCKER_REPO}/helm-base:${AURA_INSTALLER_TAG}
+        command: ["helm", "ls"]
+        imagePullPolicy: Always
+      - name: istio-install
+        image: ${DOCKER_SERVER}/${DOCKER_REPO}/istio-install
+        command: ["sh", "-c", "install-istio && install-addons && install-injection"]
+        imagePullPolicy: Always
+      - name: api-registry
+        image: ${DOCKER_SERVER}/${DOCKER_REPO}/api-registry-install:${AURA_INSTALLER_TAG}
+        command: ["sh", "-c", "install-chart"]
+        env:
+        - name: HELM_OPTS
+          value: " --set global.imagepullsecret=${DOCKER_SECRET_NAME} --set api-server.persistence.size=50Gi --set global.images.pullSecret=${DOCKER_SECRET_NAME}"
+        imagePullPolicy: Always
+      - name: observability-tools
+        image: ${DOCKER_SERVER}/${DOCKER_REPO}/observability-tools-install:${AURA_INSTALLER_TAG}
+        command: ["sh", "-c", "install-chart"]
+        env:
+        - name: HELM_OPTS
+          value: " --set global.imagepullsecret=${DOCKER_SECRET_NAME} --set api-server.persistence.size=50Gi --set global.images.pullSecret=${DOCKER_SECRET_NAME}"
+        imagePullPolicy: Always
+      containers:
+      - name: installation-complete
+        image: busybox
+        command: ['sh', '-c', 'echo "Helm, Istio and Aura Installed"']
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      imagePullSecrets: 
+      - name: ${DOCKER_SECRET_NAME}
+
+
+
+
+

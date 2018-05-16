@@ -23,14 +23,17 @@ echoWerckerVars:
     - script:
         name: echo
         code: |
-          echo "WERCKER_APPLICATION_OWNER_NAME: $WERCKER_APPLICATION_OWNER_NAME,
+          echo "
+                WERCKER_APPLICATION_OWNER_NAME: $WERCKER_APPLICATION_OWNER_NAME,
                 WERCKER_APPLICATION_NAME: $WERCKER_APPLICATION_NAME,
-                WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT"
+                WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT,
+                WERCKER_ROOT: $WERCKER_ROOT""
 
 
 push-image-to-wcr:
   steps:
     # Push docker image to your docker container registry repo i.e. wercker container releases (wcr or just CR)
+    #jl does a docker build using $WERCKER_ROOT as the base directory, then pushes it
     - internal/docker-push:
         repository: wcr.io/$WERCKER_APPLICATION_OWNER_NAME/$WERCKER_APPLICATION_NAME
         tag: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
@@ -39,8 +42,13 @@ push-image-to-wcr:
 
 
 
+
 deploy:
   steps:
+    # https://github.com/wercker/step-bash-template
+    # This Wercker step will look for files in our repo with a .template extension.
+    # It will expand any environment variables in those files, then remove the
+    # template extension.
     - bash-template
 
     - script:
@@ -74,24 +82,35 @@ deploy:
       code: |
         cat /root/.kube/config
         
-    - script:
-        name: "Visualise Kubernetes deployment"
-        code: cat kubernetes-deployment.yml
-    
     - kubectl:
+        name: create namespace
+        # don't fail the workflow if the namespace already exists
+        is_skippable: true
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+        command: create namespace ${NAMESPACE} 
+ 
+   - kubectl:
         name: delete docker pull secret
         server: $KUBERNETES_MASTER
         token: $KUBERNETES_TOKEN
         insecure-skip-tls-verify: true
-        command: delete secret ${DOCKER_SECRET_NAME} --ignore-not-found
+        command: delete secret -n ${NAMESPACE} ${DOCKER_SECRET_NAME} --ignore-not-found
         
     - kubectl:
         name: create docker pull secret
         server: $KUBERNETES_MASTER
         token: $KUBERNETES_TOKEN
         insecure-skip-tls-verify: true
-        command: create secret docker-registry ${DOCKER_SECRET_NAME} --docker-server=${DOCKER_SERVER} --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL}
+        command: create secret -n ${NAMESPACE} docker-registry ${DOCKER_SECRET_NAME} --docker-server=${DOCKER_SERVER} --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL}
         
+    - script:
+        name: "Visualise Kubernetes deployment"
+        code: cat install-job-deployment.yml
+    
+ 
+
     # Deploy the app with istio side car injection (manual)
     #- kubectl:
     #    name: create deplyoment
