@@ -5,7 +5,7 @@ metadata:
   name: install-aura
   namespace: ${NAMESPACE} 
 spec:
-  activeDeadlineSeconds: 120
+  activeDeadlineSeconds: 6120
   backoffLimit: 10  
   template:
     spec:
