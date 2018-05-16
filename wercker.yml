@@ -82,9 +82,9 @@ deploy:
       code: |
         cat /root/.kube/config
         
+    # don't fail the workflow if the namespace already exists
     - kubectl:
         name: create namespace
-        # don't fail the workflow if the namespace already exists
         is_skippable: true
         server: $KUBERNETES_MASTER
         token: $KUBERNETES_TOKEN
