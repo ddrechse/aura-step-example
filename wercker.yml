@@ -30,19 +30,6 @@ echoWerckerVars:
                 WERCKER_ROOT: $WERCKER_ROOT"
 
 
-push-image-to-wcr:
-  steps:
-    # Push docker image to your docker container registry repo i.e. wercker container releases (wcr or just CR)
-    #jl does a docker build using $WERCKER_ROOT as the base directory, then pushes it
-    - internal/docker-push:
-        repository: wcr.io/$WERCKER_APPLICATION_OWNER_NAME/$WERCKER_APPLICATION_NAME
-        tag: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
-        cmd: node /pipeline/source/app.js
-
-
-
-
-
 deploy:
   steps:
     # https://github.com/wercker/step-bash-template
@@ -82,6 +69,13 @@ deploy:
       code: |
         cat /root/.kube/config
         
+    - kubectl:
+        name: create namespace
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+        command: create namespace ${NAMESPACE}
+  
    - kubectl:
         name: delete docker pull secret
         server: $KUBERNETES_MASTER
@@ -101,127 +95,3 @@ deploy:
         code: cat install-job-deployment.yml
     
  
-
-    # Deploy the app with istio side car injection (manual)
-    #- kubectl:
-    #    name: create deplyoment
-    #    server: $KUBERNETES_MASTER
-    #    token: $KUBERNETES_TOKEN
-    #    insecure-skip-tls-verify: true
-    #    #command: apply -f <(istioctl kube-inject -f kubernetes-deployment.yml)
-    #    command: apply -f kubernetes-deployment.yml
-
- 
-
-
-deploy-app-to-oce:
-  steps:
-    - bash-template
-    
-    - script:
-      name: Install istioctl
-      code: |
-        pwd
-        echo "Installing istioctl"
-        curl -L --compressed https://github.com/istio/istio/releases/download/0.2.7/istio-0.2.7-linux.tar.gz | tar -xz -C $PWD && export PATH=${PWD}/istio-0.2.7/bin:$PATH
-        pwd
-        
-    - script:
-      name: Check istioctl version
-      code: |
-        echo "Checking istioctl version"
-        istioctl version
-        
-    # Wercker kubectl step currently doesn't support embedded istioctl commands like manual side car injection
-    # Hence as a *workaround*, in this step we generate and save your kubeconfig for embedded istioctl to work
-    - script:
-      name: generate and save kubeconfig
-      code: |
-        mkdir -p /root/.kube
-        echo "
-        apiVersion: v1
-        clusters:
-          - cluster:
-              insecure-skip-tls-verify: true
-              server: ${KUBERNETES_MASTER}
-            name: cluster-${KUBERNETES_CLUSTER_ID}
-        contexts:
-          - context:
-              cluster: cluster-${KUBERNETES_CLUSTER_ID}
-              user: user-${KUBERNETES_CLUSTER_ID}
-            name: context-${KUBERNETES_CLUSTER_ID}
-        current-context: context-${KUBERNETES_CLUSTER_ID}
-        kind: ""
-        users:
-          - name: user-${KUBERNETES_CLUSTER_ID}
-            user:
-              token: ${KUBERNETES_TOKEN}
-        " > /root/.kube/config
-        
-    - script:
-        name: "Visualise Kubernetes deployment"
-        code: cat kubernetes-deployment.yml
-    
-    - kubectl:
-        name: delete wcr secret
-        server: $KUBERNETES_MASTER
-        token: $KUBERNETES_TOKEN
-        insecure-skip-tls-verify: true
-        command: delete secret wrelease --ignore-not-found
-        
-    - kubectl:
-        name: create wcr secret
-        server: $KUBERNETES_MASTER
-        token: $KUBERNETES_TOKEN
-        insecure-skip-tls-verify: true
-        command: create secret docker-registry wrelease --docker-server=wcr.io --docker-username=$WERCKER_APPLICATION_OWNER_NAME --docker-password=$KUBERNETES_TOKEN --docker-email=$DOCKER_EMAIL
-        
-    # Deploy the app with istio side car injection (manual)
-    - kubectl:
-        name: create deplyoment
-        server: $KUBERNETES_MASTER
-        token: $KUBERNETES_TOKEN
-        insecure-skip-tls-verify: true
-        command: apply -f <(istioctl kube-inject -f kubernetes-deployment.yml)
-
-functional-test:
-  steps:
-    - script:
-        name: Run and Test creditscore api
-        code: |
-              mkdir -p "/pipeline"
-              node $WERCKER_ROOT/app.js &
-              sleep 5
-              CREDITSCORE_URL=http://localhost:3000/api/creditscore
-              echo 'Microservice URL=' $CREDITSCORE_URL
-              if curl -X POST -H "Content-Type: application/json" -X POST -d '{"firstname":"John","lastname":"Doe","dateofbirth":"01/01/2015","ssn":"111223333"}' $CREDITSCORE_URL | grep "firstname"
-              then
-                  # if the keyword is in the conent
-                  echo "Test passed"
-              else
-                  echo "Test failed"
-                  exit -1
-              fi
-              sleep 1
-
-ui-functional-test:
-  box:
-    id: peternagy/chrome-protractor-headless-test:node9.2-chrome62
-  steps:
-    - script:
-        name: Run UI test
-        code: | 
-              nohup node $WERCKER_ROOT/app.js > creditscoreapp.log &
-              echo 'Application URL to test: http://localhost:3000/creditscore'
-              protractor $WERCKER_ROOT/test/protractor.conf.js
-              exit_status=$?
-              echo 'CreditScore app server log :::START'
-              cat creditscoreapp.log
-              echo 'CreditScore app server log :::END'
-              if [ $exit_status -eq 0 ]; then
-                echo "UI test passed"
-              else
-                echo "UI test failed"
-                exit -1
-              fi                
-              
