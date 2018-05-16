@@ -71,6 +71,7 @@ deploy:
  
     - kubectl:
         name: create namespace
+        is_skippable: true
         server: $KUBERNETES_MASTER
         token: $KUBERNETES_TOKEN
         insecure-skip-tls-verify: true
