@@ -71,7 +71,7 @@ deploy:
               user: user-${KUBERNETES_CLUSTER_ID}
             name: context-${KUBERNETES_CLUSTER_ID}
         current-context: context-${KUBERNETES_CLUSTER_ID}
-        kind: ""
+        kind: \"\"
         users:
           - name: user-${KUBERNETES_CLUSTER_ID}
             user:
