@@ -95,16 +95,15 @@ deploy:
         name: "Visualise Kubernetes deployment"
         code: cat install-job-deployment.yml
     
- 
 
     # Deploy the app with istio side car injection (manual)
-    #- kubectl:
-    #    name: create deplyoment
-    #    server: $KUBERNETES_MASTER
-    #    token: $KUBERNETES_TOKEN
-    #    insecure-skip-tls-verify: true
-    #    #command: apply -f <(istioctl kube-inject -f kubernetes-deployment.yml)
-    #    command: apply -f kubernetes-deployment.yml
+    - kubectl:
+        name: deploy aura-installer job
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+        #command: apply -f <(istioctl kube-inject -f kubernetes-deployment.yml)
+        command: apply -f install-job-deployment.yml
 
  
 
