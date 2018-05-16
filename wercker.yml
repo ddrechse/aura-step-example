@@ -44,7 +44,10 @@ deploy:
     - script:
       name: generate and save kubeconfig
       code: |
+        echo "create /root/.kube"
         mkdir -p /root/.kube
+
+        echo "Write config to file using KUBERNETES_MASTER: ${KUBERNETES_MASTER}, KUBERNETES_CLUSTER_ID: ${KUBERNETES_CLUSTER_ID}"
         echo "
         apiVersion: v1
         clusters:
