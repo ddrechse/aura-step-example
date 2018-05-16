@@ -1,22 +1,21 @@
-# box: node:6.10
+box: node:6.10
 
-box: debian
 build:
     # Steps make up the actions in your pipeline
     # Read more about steps on our dev center:
     # http://devcenter.wercker.com/docs/steps/index.html
-  steps:
-    - script:
-        name: echo
-        code: |
-          echo "hello world!"
+  #steps:
+  #  - script:
+  #      name: echo
+  #      code: |
+  #        echo "hello world!"
 
-#buildOrig:
-#  steps:
-#    # Run 'npm install'
-#    - script:
-#        name: A step that executes `npm install` command
-#        code: npm install  
+build:
+  steps:
+    # Run 'npm install'
+    - script:
+        name: A step that executes `npm install` command
+        code: npm install  
 
 push-image-to-wcr:
   steps:
