@@ -17,6 +17,17 @@ build:
         name: A step that executes `npm install` command
         code: npm install  
 
+echoWerckerVars:
+  steps:
+    # Just echo the vars for debugging
+    - script:
+        name: echo
+        code: |
+          echo "WERCKER_APPLICATION_OWNER_NAME: $WERCKER_APPLICATION_OWNER_NAME,
+                WERCKER_APPLICATION_NAME: $WERCKER_APPLICATION_NAME,
+                WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT"
+
+
 push-image-to-wcr:
   steps:
     # Push docker image to your docker container registry repo i.e. wercker container releases (wcr or just CR)
