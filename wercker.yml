@@ -41,6 +41,8 @@ push-image-to-wcr:
 
 deploy:
   steps:
+    - bash-template
+
     - script:
       name: generate and save kubeconfig
       code: |
@@ -72,6 +74,33 @@ deploy:
       code: |
         cat /root/.kube/config
         
+    - script:
+        name: "Visualise Kubernetes deployment"
+        code: cat kubernetes-deployment.yml
+    
+    - kubectl:
+        name: delete docker pull secret
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+        command: delete secret ${DOCKER_SECRET_NAME} --ignore-not-found
+        
+    - kubectl:
+        name: create docker pull secret
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+        command: create secret docker-registry ${DOCKER_SECRET_NAME} --docker-server=${DOCKER_SERVER} --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASSWORD} --docker-email=${DOCKER_EMAIL}
+        
+    # Deploy the app with istio side car injection (manual)
+    #- kubectl:
+    #    name: create deplyoment
+    #    server: $KUBERNETES_MASTER
+    #    token: $KUBERNETES_TOKEN
+    #    insecure-skip-tls-verify: true
+    #    #command: apply -f <(istioctl kube-inject -f kubernetes-deployment.yml)
+    #    command: apply -f kubernetes-deployment.yml
+
  
 
 
