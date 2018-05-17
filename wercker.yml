@@ -38,51 +38,23 @@ deploy:
         if [ "$KUBERNETES_MASTER" != "" ] ; then echo "KUBERNETES_MASTER = $KUBERNETES_MASTER" ; else echo "KUBERNETES_MASTER is a required workflow variable" exit 1 ; fi
 
 
+        if [ "$KUBERNETES_CLUSTER_ID" != "" ] ; then echo "KUBERNETES_CLUSTER_ID = $KUBERNETES_CLUSTER_ID" ; else echo "KUBERNETES_CLUSTER_ID is a required workflow variable" exit 1 ; fi
+        if [ "$KUBERNETES_TOKEN" != "" ] ; then echo "KUBERNETES_TOKEN = $KUBERNETES_TOKEN" ; else echo "KUBERNETES_TOKEN is a required workflow variable" exit 1 ; fi
+
+        if [ "$DOCKER_SERVER" != "" ] ; then echo "DOCKER_SERVER = $DOCKER_SERVER" ; else echo "DOCKER_SERVER is a required workflow variable" exit 1 ; fi
+        if [ "$DOCKER_USER" != "" ] ; then echo "DOCKER_USER = $DOCKER_USER" ; else echo "DOCKER_USER is a required workflow variable" exit 1 ; fi
+        if [ "$DOCKER_PASSWORD" != "" ] ; then echo "DOCKER_PASSWORD = $DOCKER_PASSWORD" ; else echo "DOCKER_PASSWORD is a required workflow variable" exit 1 ; fi
+
+        if [ "$DOCKER_REPO" != "" ] ; then echo "DOCKER_REPO = $DOCKER_REPO" ; else echo "DOCKER_REPO is a required workflow variable" exit 1 ; fi
+        if [ "$DOCKER_EMAIL" != "" ] ; then echo "DOCKER_EMAIL = $DOCKER_EMAIL" ; else echo "DOCKER_EMAIL is a required workflow variable" exit 1 ; fi
+        if [ "$DOCKER_SECRET_NAME" != "" ] ; then echo "DOCKER_SECRET_NAME = $DOCKER_SECRET_NAME" ; else echo "DOCKER_SECRET_NAME is a required workflow variable" exit 1 ; fi
+
+        if [ "$NAMESPACE" != "" ] ; then echo "NAMESPACE = $NAMESPACE" ; else echo "NAMESPACE is a required workflow variable" exit 1 ; fi
+        if [ "$SERVICE_ACCOUNT_NAME" != "" ] ; then echo "SERVICE_ACCOUNT_NAME = $SERVICE_ACCOUNT_NAME" ; else echo "SERVICE_ACCOUNT_NAME is a required workflow variable" exit 1 ; fi
+        if [ "$AURA_INSTALLER_TAG" != "" ] ; then echo "AURA_INSTALLER_TAG = $AURA_INSTALLER_TAG" ; else echo "AURA_INSTALLER_TAG is a required workflow variable" exit 1 ; fi
 
 
-#KUBERNETES_CLUSTER_ID
-#KUBERNETES_CLUSTER_ID
-#KUBERNETES_CLUSTER_ID
-
-#KUBERNETES_TOKEN
-#KUBERNETES_TOKEN
-#KUBERNETES_TOKEN
-
-#DOCKER_SERVER
-#DOCKER_SERVER
-#DOCKER_SERVER
-
-#DOCKER_USER
-#DOCKER_USER
-#DOCKER_USER
-
-#DOCKER_PASSWORD
-#DOCKER_PASSWORD
-#DOCKER_PASSWORD
-
-#DOCKER_REPO
-#DOCKER_REPO
-#DOCKER_REPO
-
-#DOCKER_EMAIL
-#DOCKER_EMAIL
-#DOCKER_EMAIL
-
-#DOCKER_SECRET_NAME
-#DOCKER_SECRET_NAME
-#DOCKER_SECRET_NAME
-
-#NAMESPACE
-#NAMESPACE
-#NAMESPACE
-
-#SERVICE_ACCOUNT_NAME
-#SERVICE_ACCOUNT_NAME
-#SERVICE_ACCOUNT_NAME
-
-#AURA_INSTALLER_TAG
-#AURA_INSTALLER_TAG
-#AURA_INSTALLER_TAG
+        if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" exit 1 ; fi
 
 #
 #
