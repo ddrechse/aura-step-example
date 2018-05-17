@@ -17,7 +17,7 @@ build:
         name: A step that executes `npm install` command
         code: npm install  
 
-echoWerckerVars:
+echo-wercker-vars:
   steps:
     # Just echo the vars for debugging
     - script:
@@ -54,7 +54,18 @@ deploy:
         if [ "$AURA_INSTALLER_TAG" != "" ] ; then echo "AURA_INSTALLER_TAG = $AURA_INSTALLER_TAG" ; else echo "AURA_INSTALLER_TAG is a required workflow variable" ; exit 1 ; fi
 
 
+        export WERCKER_APPLICATION_NAME=badApple
+        if [ "$WERCKER_APPLICATION_NAME" != "" ] ; then echo "WERCKER_APPLICATION_NAME = $WERCKER_APPLICATION_NAME" ; else echo "WERCKER_APPLICATION_NAME is a required workflow variable" ; exit 1 ; fi
+        export TEST_FAILURE=Bill Defranco
         if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" ; exit 1 ; fi
+
+
+    - script:
+      name: test export persistence
+      code: |
+        if [ "$WERCKER_APPLICATION_NAME" != "" ] ; then echo "WERCKER_APPLICATION_NAME = $WERCKER_APPLICATION_NAME" ; else echo "WERCKER_APPLICATION_NAME is a required workflow variable" ; exit 1 ; fi
+        if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" ; exit 1 ; fi
+
 
 #
 #
