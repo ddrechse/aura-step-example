@@ -35,7 +35,10 @@ deploy:
     - script:
       name: verify required variables
       code: |
-        if ["$KUBERNETES_MASTER" != "" ] ; then echo "KUBERNETES_MASTER = $KUBERNETES_MASTER" ; else ; echo "KUBERNETES_MASTER is a required workflow variable" ; exit 1; fi
+        if [ "$KUBERNETES_MASTER" != "" ] ; then echo "KUBERNETES_MASTER = $KUBERNETES_MASTER" ; else echo "KUBERNETES_MASTER is a required workflow variable" exit 1 ; fi
+
+
+
 
 #KUBERNETES_CLUSTER_ID
 #KUBERNETES_CLUSTER_ID
