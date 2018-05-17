@@ -32,6 +32,68 @@ echoWerckerVars:
 
 deploy:
   steps:
+    - script:
+      name: verify required variables
+      code: |
+
+
+        if ["$KUBERNETES_MASTER" != "" ] ; then
+            echo "KUBERNETES_MASTER = $KUBERNETES_MASTER"
+        else
+            echo "KUBERNETES_MASTER is a required workflow variable"
+            exit 1;
+        fi
+
+#KUBERNETES_CLUSTER_ID
+#KUBERNETES_CLUSTER_ID
+#KUBERNETES_CLUSTER_ID
+
+#KUBERNETES_TOKEN
+#KUBERNETES_TOKEN
+#KUBERNETES_TOKEN
+
+#DOCKER_SERVER
+#DOCKER_SERVER
+#DOCKER_SERVER
+
+#DOCKER_USER
+#DOCKER_USER
+#DOCKER_USER
+
+#DOCKER_PASSWORD
+#DOCKER_PASSWORD
+#DOCKER_PASSWORD
+
+#DOCKER_REPO
+#DOCKER_REPO
+#DOCKER_REPO
+
+#DOCKER_EMAIL
+#DOCKER_EMAIL
+#DOCKER_EMAIL
+
+#DOCKER_SECRET_NAME
+#DOCKER_SECRET_NAME
+#DOCKER_SECRET_NAME
+
+#NAMESPACE
+#NAMESPACE
+#NAMESPACE
+
+#SERVICE_ACCOUNT_NAME
+#SERVICE_ACCOUNT_NAME
+#SERVICE_ACCOUNT_NAME
+
+#AURA_INSTALLER_TAG
+#AURA_INSTALLER_TAG
+#AURA_INSTALLER_TAG
+
+#
+#
+#
+
+hold-for-later:
+  steps:
     # https://github.com/wercker/step-bash-template
     # This Wercker step will look for files in our repo with a .template extension.
     # It will expand any environment variables in those files, then remove the
