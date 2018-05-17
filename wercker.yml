@@ -35,44 +35,29 @@ deploy:
     - script:
       name: verify required variables
       code: |
+        # Required Kubernetes parameters
         if [ "$KUBERNETES_MASTER" != "" ] ; then echo "KUBERNETES_MASTER = $KUBERNETES_MASTER" ; else echo "KUBERNETES_MASTER is a required workflow variable" ; exit 1 ; fi
-
-
         if [ "$KUBERNETES_CLUSTER_ID" != "" ] ; then echo "KUBERNETES_CLUSTER_ID = $KUBERNETES_CLUSTER_ID" ; else echo "KUBERNETES_CLUSTER_ID is a required workflow variable" ; exit 1 ; fi
         if [ "$KUBERNETES_TOKEN" != "" ] ; then echo "KUBERNETES_TOKEN = $KUBERNETES_TOKEN" ; else echo "KUBERNETES_TOKEN is a required workflow variable" ; exit 1 ; fi
 
+        # Docker varaibles
         if [ "$DOCKER_SERVER" != "" ] ; then echo "DOCKER_SERVER = $DOCKER_SERVER" ; else echo "DOCKER_SERVER is a required workflow variable" ; exit 1 ; fi
+        if [ "$DOCKER_REPO" != "" ] ; then echo "DOCKER_REPO = $DOCKER_REPO" ; else echo "DOCKER_REPO is a required workflow variable" ; exit 1 ; fi
         if [ "$DOCKER_USER" != "" ] ; then echo "DOCKER_USER = $DOCKER_USER" ; else echo "DOCKER_USER is a required workflow variable" ; exit 1 ; fi
         if [ "$DOCKER_PASSWORD" != "" ] ; then echo "DOCKER_PASSWORD = $DOCKER_PASSWORD" ; else echo "DOCKER_PASSWORD is a required workflow variable" ; exit 1 ; fi
-
-        if [ "$DOCKER_REPO" != "" ] ; then echo "DOCKER_REPO = $DOCKER_REPO" ; else echo "DOCKER_REPO is a required workflow variable" ; exit 1 ; fi
         if [ "$DOCKER_EMAIL" != "" ] ; then echo "DOCKER_EMAIL = $DOCKER_EMAIL" ; else echo "DOCKER_EMAIL is a required workflow variable" ; exit 1 ; fi
-        if [ "$DOCKER_SECRET_NAME" != "" ] ; then echo "DOCKER_SECRET_NAME = $DOCKER_SECRET_NAME" ; else echo "DOCKER_SECRET_NAME is a required workflow variable" ; exit 1 ; fi
 
+
+        # Variables with defaults...
+        if [ "$DOCKER_SECRET_NAME" != "" ] ; then echo "DOCKER_SECRET_NAME = $DOCKER_SECRET_NAME" ; else echo "DOCKER_SECRET_NAME is a required workflow variable" ; exit 1 ; fi
         if [ "$NAMESPACE" != "" ] ; then echo "NAMESPACE = $NAMESPACE" ; else echo "NAMESPACE is a required workflow variable" ; exit 1 ; fi
         if [ "$SERVICE_ACCOUNT_NAME" != "" ] ; then echo "SERVICE_ACCOUNT_NAME = $SERVICE_ACCOUNT_NAME" ; else echo "SERVICE_ACCOUNT_NAME is a required workflow variable" ; exit 1 ; fi
         if [ "$AURA_INSTALLER_TAG" != "" ] ; then echo "AURA_INSTALLER_TAG = $AURA_INSTALLER_TAG" ; else echo "AURA_INSTALLER_TAG is a required workflow variable" ; exit 1 ; fi
 
 
-        export WERCKER_APPLICATION_NAME=badApple
-        if [ "$WERCKER_APPLICATION_NAME" != "" ] ; then echo "WERCKER_APPLICATION_NAME = $WERCKER_APPLICATION_NAME" ; else echo "WERCKER_APPLICATION_NAME is a required workflow variable" ; exit 1 ; fi
-        export TEST_FAILURE=Bill Defranco
-        if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" ; exit 1 ; fi
+        # WERCKER variables can be overridden
+        # New variables can be exported and will get picked up in other steps of this workflow
 
-
-    - script:
-      name: test export persistence
-      code: |
-        if [ "$WERCKER_APPLICATION_NAME" != "" ] ; then echo "WERCKER_APPLICATION_NAME = $WERCKER_APPLICATION_NAME" ; else echo "WERCKER_APPLICATION_NAME is a required workflow variable" ; exit 1 ; fi
-        if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" ; exit 1 ; fi
-
-
-#
-#
-#
-
-hold-for-later:
-  steps:
     # https://github.com/wercker/step-bash-template
     # This Wercker step will look for files in our repo with a .template extension.
     # It will expand any environment variables in those files, then remove the
@@ -135,15 +120,19 @@ hold-for-later:
     - script:
         name: "echo kubernetes deployment file"
         code: cat install-job-deployment.yml
-    
 
-    # Deploy the app with istio side car injection (manual)
     - kubectl:
-        name: deploy aura-installer job
+        name: delete previous install job
         server: $KUBERNETES_MASTER
         token: $KUBERNETES_TOKEN
         insecure-skip-tls-verify: true
-        #command: apply -f <(istioctl kube-inject -f kubernetes-deployment.yml)
+        command: delete job -n ${NAMESPACE} install-aura --ignore-not-found
+ 
+    - kubectl:
+        name: deploy install-aura job
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
         command: apply -f install-job-deployment.yml
 
  
