@@ -54,7 +54,7 @@ deploy:
         if [ "$AURA_INSTALLER_TAG" != "" ] ; then echo "AURA_INSTALLER_TAG = $AURA_INSTALLER_TAG" ; else echo "AURA_INSTALLER_TAG is a required workflow variable" ; exit 1 ; fi
 
 
-        if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" ; ; exit 1 ; fi
+        if [ "$TEST_FAILURE" != "" ] ; then echo "TEST_FAILURE = $TEST_FAILURE" ; else echo "TEST_FAILURE is a required workflow variable" ; exit 1 ; fi
 
 #
 #
