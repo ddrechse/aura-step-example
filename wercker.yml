@@ -130,7 +130,7 @@ deploy:
         insecure-skip-tls-verify: true
         command: delete job -n ${NAMESPACE} delete-aura --ignore-not-found
 
-     - kubectl:
+    - kubectl:
         name: delete previous install job
         server: $KUBERNETES_MASTER
         token: $KUBERNETES_TOKEN
