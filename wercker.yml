@@ -1,9 +1,7 @@
 box: node:6.10
 
 build:
-    # http://devcenter.wercker.com/docs/steps/index.html
-
-build:
+  # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     # Run 'npm install'
     - script:
@@ -23,6 +21,15 @@ echo-wercker-vars:
                 WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT,
                 WERCKER_ROOT: $WERCKER_ROOT"
 
+
+test-custom-step:
+  steps:
+    - wercker/step-aura "https://github.com/wercker/step-aura/archive/master.tar.gz":
+        name: test the custom step
+        server: $KUBERNETES_MASTER
+        token: $KUBERNETES_TOKEN
+        insecure-skip-tls-verify: true
+ 
 
 deploy:
   steps:
