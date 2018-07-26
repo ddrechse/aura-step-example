@@ -25,7 +25,7 @@ echo-wercker-vars:
 
 test-custom-step:
   steps:
-    - wercker/step-aura "https://github.com/wercker/step-aura/archive/master.tar.gz":
+    - jacob-lindholm/step-aura
         name: test the custom step
         insecure-skip-tls-verify: true
  
