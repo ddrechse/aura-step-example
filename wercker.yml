@@ -1,4 +1,4 @@
-box: node:6.10
+box: debian:stable-slim
 
 build:
   # http://devcenter.wercker.com/docs/steps/index.html
@@ -25,7 +25,7 @@ echo-wercker-vars:
 
 test-custom-step:
   steps:
-    - jacob-lindholm/step-aura:
+    - aura-dev/step-aura:
         name: test the custom step
         insecure-skip-tls-verify: true
  
